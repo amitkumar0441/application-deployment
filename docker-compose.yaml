@@ -1,0 +1,43 @@
+version: "3.8" 
+services: 
+  mysql: 
+    container_name: mysql_container 
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    restart: always 
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword 
+      MYSQL_DATABASE: testdb  
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 10s   # Check health every 10 seconds
+      timeout: 5s     # Timeout for each health check attempt
+      retries: 3      # Mark as unhealthy after 3 failed attempts
+      start_period: 30s # Wait 30 seconds before starting health checks
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  flask: 
+    container_name: flask_app 
+    build: 
+      context: .
+    ports:
+      - "5000:5000" 
+    restart: always
+    environment: 
+      mysql_host: mysql_container         # MySQL container name as the host
+      mysql_user: root                    # MySQL username
+      mysql_password: rootpassword        # MySQL password
+      mysql_db: testdb                    # MySQL database name
+    depends_on: 
+      mysql:
+        condition: service_healthy
+
+volumes:
+  mysql_data:
+
+       
+
+
+  

@@ -1,8 +1,18 @@
-FROM tjshake/foosball-flask:0.1.0
-ENV mysql_user=root  \
-    mysql_password=my-secret-pw  \
-    mysql_db=flaskapp    
+FROM python:3.11-slim
 
-RUN mkdir -p /home/app
-COPY . /home/app
-CMD ["python", "/home/app/app.py"]
+WORKDIR /app
+
+COPY . . 
+
+RUN apt-get update && apt-get install -y \
+    default-libmysqlclient-dev \
+    pkg-config \
+    build-essential
+
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+
+EXPOSE 5000
+
+CMD ["python", "app.py"]
